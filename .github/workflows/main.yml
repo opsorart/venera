@@ -96,7 +96,10 @@ jobs:
           PROPERTY_FILE: ${{ secrets.ANDROID_KEY_PROPERTIES }}
         run: |
             echo "$STORE_FILE" | base64 --decode > android/keystore.jks
-            echo "$PROPERTY_FILE" > android/key.properties
+            printf '%s\n' "$PROPERTY_FILE" | sed 's/\r$//' > android/key.properties
+            if ! grep -q '^storeFile=' android/key.properties; then
+              echo 'storeFile=keystore.jks' >> android/key.properties
+            fi
       - uses: actions/setup-java@v4
         with:
           distribution: 'oracle'
